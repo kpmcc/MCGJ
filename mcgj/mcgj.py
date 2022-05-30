@@ -100,6 +100,25 @@ def update_profile():
     user.update()
     return redirect(url_for('mcgj.profile'))
 
+@bp.route("/users/<user_id>")
+@login_required
+def render_user(user_id):
+    user_query = "SELECT * FROM users WHERE id = ?"
+    user = db.query(sql=user_query, args=[user_id])
+    print(user)
+    user = user[0]
+    print(user)
+    user_tracks_query = "SELECT * FROM tracks WHERE user_id = ? AND cue_date IS NOT NULL ORDER BY cue_date DESC LIMIT 50"
+    user_tracks = db.query(sql=user_tracks_query, args=[user_id])
+    user_tracks = [Track(row) for row in user_tracks] if user_tracks is not None else []
+
+    for track in user_tracks:
+        d = track.cue_date.date()
+        track.cue_date = d
+
+    return render_template("show_user.html", user=user, tracks=user_tracks)
+
+
 @bp.route("/sessions/<session_id>")
 def render_session(session_id):
     if current_user.is_authenticated:

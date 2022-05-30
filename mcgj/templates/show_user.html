@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %} {{user.name}} {% endblock %}
+
+{% block content %}
+
+<h1>{{user.nickname}}</h1>
+
+{% include "general_nav.html" %}
+
+<div class="dash">
+  <div class="unplayed">
+    <h2>Previously Played Tracks</h2>
+    <ul class="track-list">
+      {% if tracks|length > 0 %}
+      {% for track in tracks %}
+      <li class="{{loop.cycle('odd', 'even')}}">{% with track=track %} {% include "played_user_track_row.html" %} {% endwith %}</li>
+      {% endfor %}
+      {% else %}
+      <li class="odd">No previously played tracks</li>
+      {% endif %}
+    </ul>
+  </div>
+</div>
+
+{% endblock %}
