@@ -107,16 +107,24 @@ def render_user(user_id):
     user = db.query(sql=user_query, args=[user_id])
     print(user)
     user = user[0]
+    username = user['nickname']
+    if username is None:
+        username = user['name']
     print(user)
-    user_tracks_query = "SELECT * FROM tracks WHERE user_id = ? AND cue_date IS NOT NULL ORDER BY cue_date DESC LIMIT 50"
+    user_tracks_query = "SELECT * FROM tracks WHERE user_id = ? AND cue_date IS NOT NULL ORDER BY cue_date DESC "
     user_tracks = db.query(sql=user_tracks_query, args=[user_id])
     user_tracks = [Track(row) for row in user_tracks] if user_tracks is not None else []
+
+
+    sessions = {}
 
     for track in user_tracks:
         d = track.cue_date.date()
         track.cue_date = d
+        if track.session_id not in sessions:
+            sessions[track.session_id] = True
 
-    return render_template("show_user.html", user=user, tracks=user_tracks)
+    return render_template("show_user.html", user=user, tracks=user_tracks, username=username, num_tracks=len(user_tracks), num_sessions=len(sessions.keys()))
 
 
 @bp.route("/sessions/<session_id>")
